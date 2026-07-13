@@ -1,0 +1,11 @@
+# Build Maven
+target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Secrets et config locale
+*.env
+.env
+application-local.yml
