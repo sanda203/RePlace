@@ -1,5 +1,6 @@
 # Build Maven
 target/
+*.mvn/
 
 # IntelliJ
 .idea/
