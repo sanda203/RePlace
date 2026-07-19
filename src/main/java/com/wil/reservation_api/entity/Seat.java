@@ -1,6 +1,6 @@
 package com.wil.reservation_api.entity;
 
-import com.wil.reservation_api.entity.exception.InvalidSeatStateException;
+import com.wil.reservation_api.entity.exception.InvalidEntityStateException;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -36,21 +36,21 @@ public class Seat {
 
     public void hold(){
         if(status != SeatStatus.AVAILABLE){
-            throw new InvalidSeatStateException("Seat is not available for hold: current status is " + status);
+            throw new InvalidEntityStateException("Seat is not available for hold: current status is " + status);
         }
         this.status = SeatStatus.HELD;
     }
 
     public void book(){
         if(status != SeatStatus.HELD){
-            throw new InvalidSeatStateException("Seat is not available for book: current status is " + status);
+            throw new InvalidEntityStateException("Seat is not available for book: current status is " + status);
         }
         this.status = SeatStatus.BOOKED;
     }
 
     public void release(){
         if(status != SeatStatus.HELD){
-            throw new InvalidSeatStateException("Seat is not available for release: current status is " + status);
+            throw new InvalidEntityStateException("Seat is not available for release: current status is " + status);
         }
         this.status = SeatStatus.AVAILABLE;
     }
