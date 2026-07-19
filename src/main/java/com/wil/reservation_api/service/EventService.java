@@ -1,7 +1,7 @@
 package com.wil.reservation_api.service;
 
 import com.wil.reservation_api.entity.Event;
-import com.wil.reservation_api.entity.exception.EventNotFoundException;
+import com.wil.reservation_api.entity.exception.EntityNotFoundException;
 import com.wil.reservation_api.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +16,6 @@ public class EventService {
     }
 
     public Event getByIdOrThrow(UUID id) {
-        return eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException("Event not found: " + id));
+        return eventRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Event not found: " + id));
     }
 }
