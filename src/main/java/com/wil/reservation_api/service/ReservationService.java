@@ -1,5 +1,6 @@
 package com.wil.reservation_api.service;
 
+import com.wil.reservation_api.dto.ReservationResponse;
 import com.wil.reservation_api.entity.*;
 import com.wil.reservation_api.entity.exception.EntityNotFoundException;
 import com.wil.reservation_api.entity.exception.SeatEventMismatchException;
@@ -30,7 +31,7 @@ public class ReservationService {
 
 
     @Transactional
-    public Reservation createReservation(UUID userId, UUID eventId, List<UUID> seatIds) {
+    public ReservationResponse createReservation(UUID userId, UUID eventId, List<UUID> seatIds) {
         User user = userService.getByIdOrThrow(userId);
 
         Event event = eventService.getByIdOrThrow(eventId);
@@ -42,7 +43,7 @@ public class ReservationService {
 
         holdSeatsAndLink(reservation, seats);
 
-        return reservation;
+        return new ReservationResponse( reservation.getId(), reservation.getStatus(), reservation.getExpiresAt(), seats.stream().map(Seat::getId).toList());
     }
 
     private List<Seat> lockAndValidateSeats(UUID eventId, List<UUID> seatIds) {
