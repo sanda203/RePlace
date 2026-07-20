@@ -1,6 +1,5 @@
 package com.wil.reservation_api.service;
 
-import com.wil.reservation_api.dto.ErrorResponse;
 import com.wil.reservation_api.dto.ReservationRequest;
 import com.wil.reservation_api.entity.Event;
 import com.wil.reservation_api.entity.Seat;
@@ -16,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -42,7 +42,7 @@ public class ReservationConcurrencyTest {
     private ReservationRepository reservationRepository;
 
     private UUID eventId;
-    private UUID userId;
+    private final List<UUID> usersId = new ArrayList<>();
     private UUID seatId;
 
     @BeforeEach
@@ -55,10 +55,11 @@ public class ReservationConcurrencyTest {
         seatRepository.save(seat);
         seatId = seat.getId();
 
-
-        User user = new User("concurrency@test.com", "password-00");
-        userRepository.save(user);
-        userId = user.getId();
+        for (int i = 0; i < 100; i++) {
+            User user = new User("concurrency"+ i +"@test.com", "password-00");
+            userRepository.save(user);
+            usersId.add(user.getId());
+        }
     }
 
     @AfterEach
@@ -81,13 +82,14 @@ public class ReservationConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failureCount = new AtomicInteger(0);
 
-        ReservationRequest request = new ReservationRequest(userId, eventId, List.of(seatId));
 
         for (int i = 0; i < threadCount; i++) {
+            UUID userId = usersId.get(i);
             executor.submit(() -> {
                 try {
                     startGate.await();
 
+                    ReservationRequest request = new ReservationRequest(userId, eventId, List.of(seatId));
                     ResponseEntity<String> response = restTemplate.postForEntity("/reservations", request, String.class);
 
                     if (response.getStatusCode().is2xxSuccessful()) {
