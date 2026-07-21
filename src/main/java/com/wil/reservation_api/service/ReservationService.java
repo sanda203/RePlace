@@ -3,6 +3,7 @@ package com.wil.reservation_api.service;
 import com.wil.reservation_api.dto.ReservationResponse;
 import com.wil.reservation_api.entity.*;
 import com.wil.reservation_api.entity.exception.EntityNotFoundException;
+import com.wil.reservation_api.entity.exception.ReservationAccessDeniedException;
 import com.wil.reservation_api.entity.exception.SeatEventMismatchException;
 import com.wil.reservation_api.repository.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +60,41 @@ public class ReservationService {
         }
     }
 
+    @Transactional
+    public ReservationResponse confirmReservation(UUID reservationId, UUID userId){
+        Reservation reservation = getReservationOrThrow(reservationId);
+        assertOwner(reservation, userId);
+
+        reservation.confirm();
+
+        List<Seat> seats = reservationSeatRepository.findByReservationId(reservationId).stream()
+                .map(ReservationSeat::getSeat)
+                .toList();
+        for (Seat seat : seats) {
+            seat.book();
+        }
+
+        return new ReservationResponse(reservation.getId(), reservation.getStatus(), reservation.getExpiresAt(),
+                seats.stream().map(Seat::getId).toList());
+    }
+
+    @Transactional
+    public ReservationResponse cancelReservation(UUID reservationId, UUID userId){
+        Reservation reservation = getReservationOrThrow(reservationId);
+        assertOwner(reservation, userId);
+        reservation.cancel();
+
+        List<Seat> seats = reservationSeatRepository.findByReservationId(reservationId).stream()
+                .map(ReservationSeat::getSeat)
+                .toList();
+        for (Seat seat : seats) {
+            seat.release();
+        }
+
+        return new ReservationResponse(reservation.getId(), reservation.getStatus(), reservation.getExpiresAt(),
+                seats.stream().map(Seat::getId).toList());
+    }
+
     private List<Seat> lockAndValidateSeats(UUID eventId, List<UUID> seatIds) {
         List<UUID> sorted = seatIds.stream().sorted().toList();
         List<Seat> seats = seatRepository.findAllByIdForUpdate(sorted);
@@ -78,6 +114,17 @@ public class ReservationService {
         for (Seat seat : seats) {
             seat.hold();
             reservationSeatRepository.save(new ReservationSeat(reservation, seat));
+        }
+    }
+
+    private Reservation getReservationOrThrow(UUID reservationId) {
+        return reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation not found: " + reservationId));
+    }
+
+    private void assertOwner(Reservation reservation, UUID userId) {
+        if (!reservation.getUser().getId().equals(userId)) {
+            throw new ReservationAccessDeniedException("User " + userId + " does not own this reservation");
         }
     }
 }
