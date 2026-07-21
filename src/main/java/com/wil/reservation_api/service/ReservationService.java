@@ -46,6 +46,19 @@ public class ReservationService {
         return new ReservationResponse( reservation.getId(), reservation.getStatus(), reservation.getExpiresAt(), seats.stream().map(Seat::getId).toList());
     }
 
+    @Transactional
+    public void expireOverdueReservations(){
+        List<Reservation> expiredReservations = reservationRepository.findByStatusAndExpiresAtBefore(ReservationStatus.PENDING, Instant.now());
+        for (Reservation reservation: expiredReservations){
+            reservation.expire();
+            List<ReservationSeat> reservationSeats = reservationSeatRepository.findByReservationId(reservation.getId());
+            List<Seat> seats = reservationSeats.stream().map(ReservationSeat::getSeat).toList();
+            for (Seat seat: seats){
+                seat.release();
+            }
+        }
+    }
+
     private List<Seat> lockAndValidateSeats(UUID eventId, List<UUID> seatIds) {
         List<UUID> sorted = seatIds.stream().sorted().toList();
         List<Seat> seats = seatRepository.findAllByIdForUpdate(sorted);
