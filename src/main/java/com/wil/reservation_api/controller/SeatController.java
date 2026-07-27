@@ -1,12 +1,12 @@
 package com.wil.reservation_api.controller;
 
+import com.wil.reservation_api.dto.seat.CreateSeatsRequest;
 import com.wil.reservation_api.dto.seat.SeatResponse;
 import com.wil.reservation_api.service.SeatService;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +24,11 @@ public class SeatController {
     @GetMapping
     public List<SeatResponse> getSeatsForEvent(@PathVariable UUID eventId){
         return seatService.getSeatsForEvent(eventId);
+    }
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<SeatResponse> createSeats(@Valid @RequestBody CreateSeatsRequest request, @PathVariable UUID eventId){
+        return seatService.addSeats(eventId, request.labels());
     }
 }
