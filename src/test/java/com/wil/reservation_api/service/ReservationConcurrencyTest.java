@@ -6,11 +6,14 @@ import com.wil.reservation_api.entity.Seat;
 import com.wil.reservation_api.entity.SeatStatus;
 import com.wil.reservation_api.entity.User;
 import com.wil.reservation_api.repository.*;
+import com.wil.reservation_api.security.JwtService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
 import java.time.Duration;
@@ -41,13 +44,16 @@ public class ReservationConcurrencyTest {
     @Autowired
     private ReservationRepository reservationRepository;
 
+    @Autowired
+    private JwtService jwtService;
+
     private UUID eventId;
-    private final List<UUID> usersId = new ArrayList<>();
     private UUID seatId;
+    private final List<String> tokens = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
-        Event event = new Event( "Concurrency Event", Instant.now().plus(Duration.ofDays(1)));
+        Event event = new Event("Concurrency Event", Instant.now().plus(Duration.ofDays(1)));
         eventRepository.save(event);
         eventId = event.getId();
 
@@ -56,9 +62,9 @@ public class ReservationConcurrencyTest {
         seatId = seat.getId();
 
         for (int i = 0; i < 100; i++) {
-            User user = new User("concurrency"+ i +"@test.com", "password-00");
+            User user = new User("concurrency" + i + "@test.com", "password-00");
             userRepository.save(user);
-            usersId.add(user.getId());
+            tokens.add(jwtService.generateToken(user.getId()));
         }
     }
 
@@ -84,20 +90,24 @@ public class ReservationConcurrencyTest {
 
 
         for (int i = 0; i < threadCount; i++) {
-            UUID userId = usersId.get(i);
+            String token = tokens.get(i);
             executor.submit(() -> {
                 try {
                     startGate.await();
 
-                    ReservationRequest request = new ReservationRequest(userId, eventId, List.of(seatId));
-                    ResponseEntity<String> response = restTemplate.postForEntity("/reservations", request, String.class);
+                    ReservationRequest request = new ReservationRequest(eventId, List.of(seatId));
+
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setBearerAuth(token);
+                    HttpEntity<ReservationRequest> entity = new HttpEntity<>(request, headers);
+
+                    ResponseEntity<String> response = restTemplate.postForEntity("/reservations", entity, String.class);
 
                     if (response.getStatusCode().is2xxSuccessful()) {
                         successCount.incrementAndGet();
                     } else {
                         failureCount.incrementAndGet();
                     }
-
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } finally {
