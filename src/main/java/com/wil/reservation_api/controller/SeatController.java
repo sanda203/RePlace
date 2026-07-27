@@ -1,6 +1,6 @@
 package com.wil.reservation_api.controller;
 
-import com.wil.reservation_api.dto.SeatResponse;
+import com.wil.reservation_api.dto.seat.SeatResponse;
 import com.wil.reservation_api.service.SeatService;
 
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,9 +1,9 @@
 package com.wil.reservation_api.controller;
 
-import com.wil.reservation_api.dto.LoginRequest;
-import com.wil.reservation_api.dto.LoginResponse;
-import com.wil.reservation_api.dto.RegisterRequest;
-import com.wil.reservation_api.dto.UserResponse;
+import com.wil.reservation_api.dto.auth.LoginRequest;
+import com.wil.reservation_api.dto.auth.LoginResponse;
+import com.wil.reservation_api.dto.auth.RegisterRequest;
+import com.wil.reservation_api.dto.auth.UserResponse;
 import com.wil.reservation_api.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

@@ -1,10 +1,9 @@
 package com.wil.reservation_api.service;
 
-import com.wil.reservation_api.dto.LoginResponse;
-import com.wil.reservation_api.dto.UserResponse;
+import com.wil.reservation_api.dto.auth.LoginResponse;
+import com.wil.reservation_api.dto.auth.UserResponse;
 import com.wil.reservation_api.entity.User;
 import com.wil.reservation_api.entity.exception.EmailAlreadyInUseException;
-import com.wil.reservation_api.entity.exception.EntityNotFoundException;
 import com.wil.reservation_api.repository.UserRepository;
 import com.wil.reservation_api.security.JwtService;
 import com.wil.reservation_api.security.UserPrincipal;

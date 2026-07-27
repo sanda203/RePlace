@@ -1,7 +1,6 @@
 package com.wil.reservation_api.controller;
 
 import com.wil.reservation_api.dto.ErrorResponse;
-import com.wil.reservation_api.dto.ReservationResponse;
 import com.wil.reservation_api.entity.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

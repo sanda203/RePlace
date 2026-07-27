@@ -1,7 +1,7 @@
 package com.wil.reservation_api.controller;
 
-import com.wil.reservation_api.dto.ReservationRequest;
-import com.wil.reservation_api.dto.ReservationResponse;
+import com.wil.reservation_api.dto.reservation.ReservationRequest;
+import com.wil.reservation_api.dto.reservation.ReservationResponse;
 import com.wil.reservation_api.security.UserPrincipal;
 import com.wil.reservation_api.service.ReservationService;
 import jakarta.validation.Valid;

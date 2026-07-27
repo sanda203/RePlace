@@ -1,4 +1,4 @@
-package com.wil.reservation_api.dto;
+package com.wil.reservation_api.dto.auth;
 
 import java.util.UUID;
 

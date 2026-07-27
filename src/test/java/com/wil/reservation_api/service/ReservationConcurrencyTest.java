@@ -1,6 +1,6 @@
 package com.wil.reservation_api.service;
 
-import com.wil.reservation_api.dto.ReservationRequest;
+import com.wil.reservation_api.dto.reservation.ReservationRequest;
 import com.wil.reservation_api.entity.Event;
 import com.wil.reservation_api.entity.Seat;
 import com.wil.reservation_api.entity.SeatStatus;

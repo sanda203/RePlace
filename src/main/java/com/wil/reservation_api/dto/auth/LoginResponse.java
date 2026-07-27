@@ -1,4 +1,4 @@
-package com.wil.reservation_api.dto;
+package com.wil.reservation_api.dto.auth;
 
 public record LoginResponse(String token) {
 }

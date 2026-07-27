@@ -1,6 +1,6 @@
 package com.wil.reservation_api.service;
 
-import com.wil.reservation_api.dto.ReservationResponse;
+import com.wil.reservation_api.dto.reservation.ReservationResponse;
 import com.wil.reservation_api.entity.*;
 import com.wil.reservation_api.entity.exception.EntityNotFoundException;
 import com.wil.reservation_api.entity.exception.ReservationAccessDeniedException;

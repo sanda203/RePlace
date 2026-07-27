@@ -1,4 +1,4 @@
-package com.wil.reservation_api.dto;
+package com.wil.reservation_api.dto.reservation;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

@@ -1,6 +1,6 @@
 package com.wil.reservation_api.service;
 
-import com.wil.reservation_api.dto.SeatResponse;
+import com.wil.reservation_api.dto.seat.SeatResponse;
 import com.wil.reservation_api.repository.SeatRepository;
 import org.springframework.stereotype.Service;
 

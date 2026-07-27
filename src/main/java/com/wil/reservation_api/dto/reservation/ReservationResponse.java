@@ -1,4 +1,4 @@
-package com.wil.reservation_api.dto;
+package com.wil.reservation_api.dto.reservation;
 
 import com.wil.reservation_api.entity.ReservationStatus;
 

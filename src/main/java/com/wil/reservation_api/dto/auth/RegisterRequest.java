@@ -1,4 +1,4 @@
-package com.wil.reservation_api.dto;
+package com.wil.reservation_api.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
