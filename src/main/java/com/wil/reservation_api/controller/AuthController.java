@@ -1,5 +1,7 @@
 package com.wil.reservation_api.controller;
 
+import com.wil.reservation_api.dto.LoginRequest;
+import com.wil.reservation_api.dto.LoginResponse;
 import com.wil.reservation_api.dto.RegisterRequest;
 import com.wil.reservation_api.dto.UserResponse;
 import com.wil.reservation_api.service.AuthService;
@@ -21,6 +23,12 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse register(@Valid @RequestBody RegisterRequest registerRequest){
         return authService.register(registerRequest.password(), registerRequest.email());
+    }
+
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest){
+        return authService.login(loginRequest.password(), loginRequest.email());
     }
 
 }
