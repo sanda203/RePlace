@@ -2,10 +2,7 @@ package com.wil.reservation_api.controller;
 
 import com.wil.reservation_api.dto.ErrorResponse;
 import com.wil.reservation_api.dto.ReservationResponse;
-import com.wil.reservation_api.entity.exception.EntityNotFoundException;
-import com.wil.reservation_api.entity.exception.InvalidEntityStateException;
-import com.wil.reservation_api.entity.exception.ReservationAccessDeniedException;
-import com.wil.reservation_api.entity.exception.SeatEventMismatchException;
+import com.wil.reservation_api.entity.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,8 +25,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    @ExceptionHandler(InvalidEntityStateException.class)
-    public ResponseEntity<ErrorResponse> handleConflict(InvalidEntityStateException ex){
+    @ExceptionHandler({InvalidEntityStateException.class, EmailAlreadyInUseException.class})
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex){
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.CONFLICT.value(), Instant.now());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
