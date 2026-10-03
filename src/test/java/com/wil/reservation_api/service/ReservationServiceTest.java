@@ -2,6 +2,7 @@ package com.wil.reservation_api.service;
 
 import com.wil.reservation_api.entity.Event;
 import com.wil.reservation_api.entity.Reservation;
+import com.wil.reservation_api.entity.ReservationSeat;
 import com.wil.reservation_api.entity.ReservationStatus;
 import com.wil.reservation_api.entity.Seat;
 import com.wil.reservation_api.entity.SeatStatus;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -114,6 +116,21 @@ class ReservationServiceTest {
 
         assertThrows(ReservationAccessDeniedException.class,
                 () -> reservationService.cancelReservation(reservationId, UUID.randomUUID()));
+    }
+
+    @Test
+    void givenPendingReservation_whenExpireReservation_thenReservationExpiredAndSeatsReleased() {
+        UUID reservationId = UUID.randomUUID();
+        Reservation reservation = reservationOwnedBy(UUID.randomUUID());
+        Seat seat = new Seat("A1", SeatStatus.HELD, eventWithId(UUID.randomUUID()));
+        when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationSeatRepository.findByReservationId(reservationId))
+                .thenReturn(List.of(new ReservationSeat(reservation, seat)));
+
+        reservationService.expireReservation(reservationId);
+
+        assertEquals(ReservationStatus.EXPIRED, reservation.getStatus());
+        assertEquals(SeatStatus.AVAILABLE, seat.getStatus());
     }
 
     @Test
