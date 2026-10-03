@@ -47,17 +47,22 @@ public class ReservationService {
         return new ReservationResponse( reservation.getId(), reservation.getStatus(), reservation.getExpiresAt(), seats.stream().map(Seat::getId).toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<UUID> findExpiredReservationIds() {
+        return reservationRepository.findExpiredIds(ReservationStatus.PENDING, Instant.now());
+    }
+
     @Transactional
-    public void expireOverdueReservations(){
-        List<Reservation> expiredReservations = reservationRepository.findByStatusAndExpiresAtBefore(ReservationStatus.PENDING, Instant.now());
-        for (Reservation reservation: expiredReservations){
-            reservation.expire();
-            List<ReservationSeat> reservationSeats = reservationSeatRepository.findByReservationId(reservation.getId());
-            List<Seat> seats = reservationSeats.stream().map(ReservationSeat::getSeat).toList();
-            for (Seat seat: seats){
-                seat.release();
-            }
+    public void expireReservation(UUID reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
+        // Un confirm/cancel a pu passer entre le scan et ici : on ne force rien.
+        if (reservation == null || reservation.getStatus() != ReservationStatus.PENDING) {
+            return;
         }
+        reservation.expire();
+        reservationSeatRepository.findByReservationId(reservationId).stream()
+                .map(ReservationSeat::getSeat)
+                .forEach(Seat::release);
     }
 
     @Transactional

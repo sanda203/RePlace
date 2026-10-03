@@ -27,6 +27,10 @@ public class Reservation {
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     protected Reservation(){}
 
     public Reservation (User user, ReservationStatus reservationStatus, Instant expiresAt){

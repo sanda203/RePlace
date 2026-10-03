@@ -26,6 +26,10 @@ public class Seat {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     protected Seat(){}
 
     public Seat(String label, SeatStatus status, Event event ){

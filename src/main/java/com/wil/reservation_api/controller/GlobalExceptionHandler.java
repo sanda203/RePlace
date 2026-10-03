@@ -4,6 +4,7 @@ import com.wil.reservation_api.dto.ErrorResponse;
 import com.wil.reservation_api.entity.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -45,5 +46,13 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("; "));
         ErrorResponse errorResponse = new ErrorResponse(message, HttpStatus.BAD_REQUEST.value(), Instant.now());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "Resource modified concurrently, please retry.",
+                HttpStatus.CONFLICT.value(), Instant.now());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 }
