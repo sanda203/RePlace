@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
@@ -98,6 +98,37 @@ public class ReservationService {
 
         return new ReservationResponse(reservation.getId(), reservation.getStatus(), reservation.getExpiresAt(),
                 seats.stream().map(Seat::getId).toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationResponse> getReservationsForUser(UUID userId) {
+        List<Reservation> reservations = reservationRepository.findByUserId(userId);
+        List<UUID> ids = reservations.stream().map(Reservation::getId).toList();
+
+        Map<UUID, List<UUID>> seatIdsByReservation = new HashMap<>();
+        for (ReservationSeat reservationSeat : reservationSeatRepository.findByReservationIdIn(ids)) {
+            UUID reservationId = reservationSeat.getReservation().getId();
+            UUID seatId = reservationSeat.getSeat().getId();
+            seatIdsByReservation.computeIfAbsent(reservationId, k -> new ArrayList<>()).add(seatId);
+        }
+
+        return reservations.stream()
+                .map(reservation -> new ReservationResponse(
+                        reservation.getId(), reservation.getStatus(), reservation.getExpiresAt(),
+                        seatIdsByReservation.getOrDefault(reservation.getId(), List.of())))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public ReservationResponse getReservation(UUID reservationId, UUID userId) {
+        Reservation reservation = getReservationOrThrow(reservationId);
+        assertOwner(reservation, userId);
+
+        List<UUID> seatIds = reservationSeatRepository.findByReservationId(reservationId).stream()
+                .map(reservationSeat -> reservationSeat.getSeat().getId())
+                .toList();
+
+        return new ReservationResponse(reservation.getId(), reservation.getStatus(), reservation.getExpiresAt(), seatIds);
     }
 
     private List<Seat> lockAndValidateSeats(UUID eventId, List<UUID> seatIds) {

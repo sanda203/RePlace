@@ -13,4 +13,6 @@ import java.util.UUID;
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
     @Query("SELECT r.id FROM Reservation r WHERE r.status = :status AND r.expiresAt < :now")
     List<UUID> findExpiredIds(@Param("status") ReservationStatus status, @Param("now") Instant now);
+
+    List<Reservation> findByUserId(UUID userId);
 }

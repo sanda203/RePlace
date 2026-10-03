@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -34,6 +35,16 @@ public class ReservationController {
     @PostMapping("/{id}/cancel")
     public ReservationResponse cancel(@PathVariable UUID id,@AuthenticationPrincipal UserPrincipal principal) {
         return reservationService.cancelReservation(id, principal.getId());
+    }
+
+    @GetMapping
+    public List<ReservationResponse> getMyReservations(@AuthenticationPrincipal UserPrincipal principal) {
+        return reservationService.getReservationsForUser(principal.getId());
+    }
+
+    @GetMapping("/{id}")
+    public ReservationResponse getReservation(@PathVariable UUID id, @AuthenticationPrincipal UserPrincipal principal) {
+        return reservationService.getReservation(id, principal.getId());
     }
 
 }
