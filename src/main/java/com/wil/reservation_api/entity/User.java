@@ -34,4 +34,8 @@ public class User {
         this.role = Role.USER;
     }
 
+    public void assignRole(Role role) {
+        this.role = role;
+    }
+
 }
