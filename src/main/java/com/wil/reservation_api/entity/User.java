@@ -22,11 +22,16 @@ public class User {
     @Column(name = "password", nullable = false)
     private  String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
     protected User(){}
 
     public User(String email, String password){
         this.email = email;
         this.password = password;
+        this.role = Role.USER;
     }
 
 }
