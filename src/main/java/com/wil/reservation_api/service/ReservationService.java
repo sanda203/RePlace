@@ -6,6 +6,7 @@ import com.wil.reservation_api.entity.exception.EntityNotFoundException;
 import com.wil.reservation_api.entity.exception.ReservationAccessDeniedException;
 import com.wil.reservation_api.entity.exception.SeatEventMismatchException;
 import com.wil.reservation_api.repository.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +22,15 @@ public class ReservationService {
     private final SeatRepository seatRepository;
     private final EventService eventService;
     private final ReservationSeatRepository reservationSeatRepository;
+    private final Duration holdDuration;
 
-    public ReservationService(ReservationRepository reservationRepository, UserService userService, SeatRepository seatRepository, EventService eventService, ReservationSeatRepository reservationSeatRepository) {
+    public ReservationService(ReservationRepository reservationRepository, UserService userService, SeatRepository seatRepository, EventService eventService, ReservationSeatRepository reservationSeatRepository, @Value("${app.reservation.hold-duration}") Duration holdDuration) {
         this.reservationRepository = reservationRepository;
         this.userService = userService;
         this.seatRepository = seatRepository;
         this.eventService = eventService;
         this.reservationSeatRepository = reservationSeatRepository;
+        this.holdDuration = holdDuration;
     }
 
 
@@ -39,7 +42,7 @@ public class ReservationService {
 
         List<Seat> seats = lockAndValidateSeats(eventId, seatIds);
 
-        Reservation reservation = new Reservation(user, ReservationStatus.PENDING, Instant.now().plus(Duration.ofMinutes(15)));
+        Reservation reservation = new Reservation(user, ReservationStatus.PENDING, Instant.now().plus(holdDuration));
         reservationRepository.save(reservation);
 
         holdSeatsAndLink(reservation, seats);
@@ -55,7 +58,6 @@ public class ReservationService {
     @Transactional
     public void expireReservation(UUID reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
-        // Un confirm/cancel a pu passer entre le scan et ici : on ne force rien.
         if (reservation == null || reservation.getStatus() != ReservationStatus.PENDING) {
             return;
         }
