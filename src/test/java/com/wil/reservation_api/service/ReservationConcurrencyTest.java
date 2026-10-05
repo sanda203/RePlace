@@ -86,7 +86,8 @@ public class ReservationConcurrencyTest {
         CountDownLatch doneGate = new CountDownLatch(threadCount);
 
         AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failureCount = new AtomicInteger(0);
+        AtomicInteger conflictCount = new AtomicInteger(0);
+        AtomicInteger unexpectedCount = new AtomicInteger(0);
 
 
         for (int i = 0; i < threadCount; i++) {
@@ -105,8 +106,10 @@ public class ReservationConcurrencyTest {
 
                     if (response.getStatusCode().is2xxSuccessful()) {
                         successCount.incrementAndGet();
+                    } else if (response.getStatusCode().value() == 409) {
+                        conflictCount.incrementAndGet();
                     } else {
-                        failureCount.incrementAndGet();
+                        unexpectedCount.incrementAndGet();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -121,6 +124,10 @@ public class ReservationConcurrencyTest {
         executor.shutdown();
 
         Assertions.assertEquals(1, successCount.get());
-        Assertions.assertEquals(99, failureCount.get());
+        Assertions.assertEquals(99, conflictCount.get());
+        Assertions.assertEquals(0, unexpectedCount.get());
+
+        Assertions.assertEquals(SeatStatus.HELD, seatRepository.findById(seatId).orElseThrow().getStatus());
+        Assertions.assertEquals(1, reservationSeatRepository.findAll().size());
     }
 }
