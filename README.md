@@ -101,7 +101,7 @@ stateDiagram-v2
 
 State transitions are handled directly by the entities. An invalid transition is rejected before it can produce an inconsistent state.
 
-Unconfirmed reservations automatically expire after **15 minutes**.
+Unconfirmed reservations expire **15 minutes** after creation. A background job sweeps expired reservations, so a reservation stays confirmable during the short window between its deadline and the next sweep.
 
 ---
 

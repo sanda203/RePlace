@@ -101,7 +101,7 @@ stateDiagram-v2
 
 Les transitions sont portées par les entités elles-mêmes. Une transition invalide est refusée avant de pouvoir produire un état incohérent.
 
-Les réservations non confirmées expirent automatiquement après **15 minutes**.
+Les réservations non confirmées expirent **15 minutes** après leur création. Un job de fond balaie les réservations échues, donc une réservation reste confirmable durant le court intervalle entre son échéance et le passage suivant.
 
 ---
 
