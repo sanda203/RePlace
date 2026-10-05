@@ -14,6 +14,6 @@ public interface SeatRepository extends JpaRepository<Seat, UUID> {
     public List<Seat> findByEventId(UUID eventId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT s from Seat s WHERE s.id IN :ids")
+    @Query("SELECT s from Seat s WHERE s.id IN :ids ORDER BY s.id")
     List<Seat> findAllByIdForUpdate(@Param("ids") List<UUID> ids);
 }

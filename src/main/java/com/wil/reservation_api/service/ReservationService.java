@@ -134,8 +134,7 @@ public class ReservationService {
     }
 
     private List<Seat> lockAndValidateSeats(UUID eventId, List<UUID> seatIds) {
-        List<UUID> sorted = seatIds.stream().sorted().toList();
-        List<Seat> seats = seatRepository.findAllByIdForUpdate(sorted);
+        List<Seat> seats = seatRepository.findAllByIdForUpdate(seatIds);
 
         if (seats.size() != seatIds.size()) {
             throw new EntityNotFoundException("One or more seats not found");
